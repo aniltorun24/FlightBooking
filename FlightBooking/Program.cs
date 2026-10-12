@@ -1,6 +1,21 @@
+using FlightBooking.AgentServices;
+using FlightBooking.AgentServices.CityDetectors;
+using FlightBooking.AgentServices.GooglePlacesServices;
+using FlightBooking.AgentServices.IntentDetectors;
+using FlightBooking.AgentServices.OpenAIServices;
+using FlightBooking.AgentServices.PromptBuilders;
+using FlightBooking.AgentSettings;
+using FlightBooking.Services.AirportServices;
+using FlightBooking.Services.AirportServices.FlighSearchServices;
+using FlightBooking.Services.AirportServices.FlightSearchServices;
 using FlightBooking.Services.BookingServices;
+using FlightBooking.Services.CheckInServices;
 using FlightBooking.Services.FlightServices;
+using FlightBooking.Services.MachineLearningServices;
+using FlightBooking.Services.NoShowService;
+using FlightBooking.Services.OverBookingNoShowServices;
 using FlightBooking.Settings;
+using FlightBooking.Tools.WeatherTool;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 
@@ -9,7 +24,30 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<ICheckInService, CheckInService>();
+builder.Services.AddSingleton<FlightRegressionService>();
+builder.Services.AddScoped<NoShowService>();
+builder.Services.AddScoped<OverBookingRecommendationService>();
+builder.Services.AddScoped<NoShowPredictionService>();
+builder.Services.AddScoped<ITravelAgentService, TravelAgentService>();
+builder.Services.AddScoped<IOpenAIService, OpenAIService>();
+builder.Services.Configure<OpenAISettings>(builder.Configuration.GetSection("OpenAI"));
+builder.Services.AddScoped<IIntentDetector, TravelIntentDetector>();
+builder.Services.AddScoped<ITravelPromptBuilder, TravelPromptBuilder>();
+builder.Services.AddScoped<IWeatherTool, WeatherTool>();
+builder.Services.AddScoped<ICityExtractor, OpenAICityExtractor>();
+builder.Services.AddScoped<IGooglePlacesService, GooglePlacesService>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IAirportService, AirportService>();
+builder.Services.AddScoped<IFlightSearchService, FlightSearchService>();
+
+
+
+builder.Services.AddSingleton<FlightMlService>();
+builder.Services.AddScoped<MongoFlightDataService>();
+
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
 
 builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("DatabaseSettingsKey"));
 builder.Services.AddScoped<IDatabaseSettings>(sp =>
